@@ -1,8 +1,9 @@
 import { mapValues } from 'lodash';
 
 import type { SemesterData, Module } from '../types/modules';
-import { combineModules, mergeAliases, moduleDataCheck } from './CollateModules';
+import { combineModules, getEarliestStartTime, mergeAliases, moduleDataCheck } from './CollateModules';
 import { mockLogger } from '../utils/test-utils';
+
 
 jest.mock('../services/io/elastic');
 
@@ -236,5 +237,30 @@ describe(mergeAliases, () => {
         GEK2041: ['GET1025'],
       },
     );
+  });
+});
+
+describe(getEarliestStartTime, () => {
+  test('should return undefined for empty timetable', () => {
+    expect(getEarliestStartTime([])).toBeUndefined();
+  });
+
+  test('should return the earliest start time', () => {
+    const timetable: any[] = [
+      { startTime: '1000' },
+      { startTime: '0800' },
+      { startTime: '1200' },
+    ];
+    expect(getEarliestStartTime(timetable)).toBe('0800');
+  });
+
+  test('should handle single lesson', () => {
+    const timetable: any[] = [{ startTime: '0900' }];
+    expect(getEarliestStartTime(timetable)).toBe('0900');
+  });
+
+  test('should pad results to 4 digits', () => {
+    const timetable: any[] = [{ startTime: '900' }];
+    expect(getEarliestStartTime(timetable)).toBe('0900');
   });
 });
