@@ -8,7 +8,7 @@ import {
   SemesterModule,
   SemesterModuleData,
 } from '../types/mapper';
-import { Module, ModuleCode, ModuleCondensed, ModuleInformation, RawLesson, StartTime } from '../types/modules';
+import { Module, ModuleCode, ModuleCondensed, ModuleInformation } from '../types/modules';
 import type { MPEModule } from '../types/mpe';
 
 import BaseTask from './BaseTask';
@@ -139,19 +139,6 @@ const getModuleMPEParticipation = ({
   inS2CPEx: attributes?.mpes2,
 });
 
-export function getEarliestStartTime(timetable: RawLesson[]): StartTime | undefined {
-  if (!timetable || timetable.length === 0) return undefined;
-
-  const startTimes = timetable
-    .map((lesson) => parseInt(lesson.startTime, 10))
-    .filter((time) => !isNaN(time));
-
-  if (startTimes.length === 0) return undefined;
-
-  const earliest = Math.min(...startTimes);
-  return earliest.toString().padStart(4, '0');
-}
-
 // Avoid using _.pick here because it is not type safe
 const getModuleInfo = ({
   moduleCode,
@@ -180,12 +167,11 @@ const getModuleInfo = ({
   corequisite,
   attributes,
   gradingBasisDescription,
-  semesterData: semesterData.map(({ semester, examDate, examDuration, covidZones, timetable }) => ({
+  semesterData: semesterData.map(({ semester, examDate, examDuration, covidZones }) => ({
     semester,
     examDate,
     examDuration,
     covidZones,
-    earliestStartTime: getEarliestStartTime(timetable),
   })),
 });
 
